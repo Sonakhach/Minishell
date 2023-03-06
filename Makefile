@@ -6,15 +6,15 @@ NAME = minishell
 
 CC = cc
 
-CFLAGS =# -fsanitize=address  -Wall -Werror -Wextra
+CFLAGS =   -I./readline_sona/include  -Wall -Werror -Wextra #-fsanitize=address -g
 
-SRCS = $(wildcard *.c) #$(wildcard parsing_new/*.c) $(wildcard memory/*.c) $(wildcard builtin/*.c)*/
+SRCS = $(wildcard *.c)
 
 OBJS = $(patsubst %.c, %.o, $(SRCS))
 
 INCLUDES = -Ilibft  -I./include
 
-LINKERS	= -L./libft  -L./lib -lreadline
+LINKERS	= -L./libft  -L./readline_sona/lib -lreadline
 
 LINKERLIB = ./libft/libft.a
 
@@ -22,7 +22,11 @@ LIBFT = ./libft
 
 RM = rm -f
 
-%.o: %.c
+HEADER = $(wildcard *.h)
+
+RD =  $(shell find ${HOME} -name readline_sona 2>/dev/null)
+
+%.o: %.c $(HEADER) Makefile
 	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 # all: readline $(NAME) 
@@ -32,7 +36,7 @@ $(NAME): $(OBJS)
 	@$(MAKE) -C $(LIBFT)
 	@cp $(LINKERLIB) $(NAME)
 	@ar -rcs $(NAME) $(OBJS)
-	@$(CC) $(CFLAGS) $(LINKERS) $(INCLUDES) $(NAME) -o $(NAME)
+	$(CC) $(CFLAGS) $(LINKERS) $(INCLUDES) $(NAME) -o $(NAME)
 	@echo $(NONE) $(GREEN)"       >Compiled< $(NAME)" $(NONE)
 
 clean:
@@ -48,5 +52,8 @@ re: fclean all
 
 norm: clean
 	norminette $(SRCS)
+
+install:
+	cd readline-master && ./configure --prefix=$(RD) && make && make install
 
 .PHONY: all clean fclean re
